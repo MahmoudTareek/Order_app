@@ -18,6 +18,16 @@ class OrdersErrorLoginState extends OrdersState {
   OrdersErrorLoginState(this.error);
 }
 
+class OrdersSuccessSignoutState extends OrdersState {}
+
+class OrdersLoadingSignoutState extends OrdersState {}
+
+class OrdersErrorSignoutState extends OrdersState {
+  final String error;
+
+  OrdersErrorSignoutState(this.error);
+}
+
 class OrdersUpdatenumOfSelectedMealsSucessState extends OrdersState {}
 
 class OrdersUpdatenumOfSelectedMealsLoadingState extends OrdersState {}
@@ -55,6 +65,8 @@ class OrdersGetMealDataErrorState extends OrdersState {
 }
 
 class OrdersGetMealLoadingState extends OrdersState {}
+
+class OrdersUpdateMealLoadingState extends OrdersState {}
 
 class OrdersUpdateMealSuccessState extends OrdersState {}
 

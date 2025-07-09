@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -11,6 +10,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:order_app/cubit/states.dart';
 import 'package:order_app/models/meals_model.dart';
 import 'package:order_app/modules/home/home_screen.dart';
+import 'package:order_app/modules/login/login_screen.dart';
 import 'package:order_app/modules/menu/menu_screen.dart';
 import 'package:order_app/modules/yourmeals/yourmeals.dart';
 import 'package:order_app/shared/components/components.dart';
@@ -26,6 +26,8 @@ class OrdersCubit extends Cubit<OrdersState> {
     BottomNavigationBarItem(icon: Icon(Icons.fastfood), label: 'Menu'),
     BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Your Meals'),
   ];
+
+  // List<String> screenName = ['Menu', 'Your Meals'];
 
   List<Widget> screens = [MenuScreen(), YourMealsScreen()];
 
@@ -69,6 +71,7 @@ class OrdersCubit extends Cubit<OrdersState> {
           emit(OrdersSuccessLoginState());
 
           userID = value.user!.uid;
+          print('User ID: $userID');
           getUserRole(uID: value.user!.uid, context: context);
         })
         .catchError((error) {
@@ -82,6 +85,23 @@ class OrdersCubit extends Cubit<OrdersState> {
             textColor: Colors.white,
             fontSize: 16.0,
           );
+        });
+  }
+
+  void userSignout({required context}) async {
+    emit(OrdersLoadingSignoutState());
+    await FirebaseAuth.instance
+        .signOut()
+        .then((value) {
+          userID = null;
+          emit(OrdersSuccessSignoutState());
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LoginScreen()),
+            (Route<dynamic> route) => false,
+          );
+        })
+        .catchError((error) {
+          emit(OrdersErrorSignoutState(error.toString()));
         });
   }
 
@@ -156,19 +176,45 @@ class OrdersCubit extends Cubit<OrdersState> {
     }
   }
 
-  void addMeal({
+  Future<void> addMeal({
     required id,
     required name,
     required description,
     required price,
-    required imageUrl,
-  }) {
+    required File? imageFile,
+  }) async {
+    String imageURL = '';
+    if (imageFile != null) {
+      emit(OrdersUpdateMealImageLoadingState());
+      try {
+        final ref = firebase_storage.FirebaseStorage.instance.ref().child(
+          'meals/${Uri.file(imageFile.path).pathSegments.last}',
+        );
+        await ref.putFile(imageFile);
+        imageURL = await ref.getDownloadURL();
+      } catch (e) {
+        emit(OrdersGetAllMealsErrorState(e.toString()));
+        Fluttertoast.showToast(
+          msg: "$name Not Added, Image Upload Failed",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 1,
+          backgroundColor: Colors.red,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return;
+      }
+    }
     meals = MealsModel(
       id: id,
       name: name,
       description: description,
       price: price,
-      imageUrl: imageUrl,
+      imageUrl:
+          imageURL.isNotEmpty
+              ? imageURL
+              : 'https://via.placeholder.com/150.png?text=Meal+Image',
     );
     FirebaseFirestore.instance
         .collection('meals')
@@ -205,14 +251,16 @@ class OrdersCubit extends Cubit<OrdersState> {
     required name,
     required description,
     required price,
+    String? imageUrl,
   }) {
     meals = MealsModel(
       id: id,
       name: name,
       description: description,
       price: price,
-      imageUrl: meals!.imageUrl, // Keep the existing image URL
+      imageUrl: imageUrl ?? meals!.imageUrl,
     );
+    emit(OrdersUpdateMealLoadingState());
     FirebaseFirestore.instance
         .collection('meals')
         .doc(id)
@@ -257,37 +305,36 @@ class OrdersCubit extends Cubit<OrdersState> {
     }
   }
 
-  void updateMealImage() async {
+  void updateMealImage({
+    required id,
+    required name,
+    required description,
+    required price,
+    File? imageFile,
+  }) {
     emit(OrdersUpdateMealImageLoadingState());
-    await firebase_storage.FirebaseStorage.instance
+    firebase_storage.FirebaseStorage.instance
         .ref()
         .child('meals/${Uri.file(mealImage!.path).pathSegments.last}')
         .putFile(mealImage!)
         .then((value) {
-          value.ref.getDownloadURL().then((downloadUrl) {
-            meals!.imageUrl = downloadUrl;
-            FirebaseFirestore.instance
-                .collection('meals')
-                .doc(meals!.id)
-                .update(meals!.toJson())
-                .then((value) {
-                  emit(OrdersUpdateMealImageSuccessState());
-                  Fluttertoast.showToast(
-                    msg: "Meal Image Updated Successfully!",
-                    toastLength: Toast.LENGTH_SHORT,
-                    gravity: ToastGravity.BOTTOM,
-                    timeInSecForIosWeb: 1,
-                    backgroundColor: Colors.green,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                })
-                .catchError((error) {
-                  emit(OrdersUpdateMealImageErrorState(error.toString()));
-                });
-          });
-        })
-        .catchError((error) {});
+          value.ref
+              .getDownloadURL()
+              .then((value) {
+                // meals!.imageUrl = value;
+                updateMealData(
+                  id: id,
+                  name: name,
+                  description: description,
+                  price: price,
+                  imageUrl: value,
+                );
+              })
+              .catchError((error) {
+                print('Error ${error.toString()}');
+                emit(OrdersUpdateMealImageErrorState(error.toString()));
+              });
+        });
   }
 
   void deleteMeal(id) {

@@ -44,7 +44,7 @@ class _SelectedMealsScreenState extends State<SelectedMealsScreen> {
             ),
             body: const Center(
               child: CircularProgressIndicator(
-                color: Colors.blue,
+                color: primaryColor,
                 backgroundColor: Colors.white,
               ),
             ),

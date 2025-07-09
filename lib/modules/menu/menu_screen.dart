@@ -20,13 +20,20 @@ class MenuScreen extends StatelessWidget {
         // OrdersCubit.get(context).getAllMeals();
         return Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+              padding: EdgeInsets.zero,
+              icon: Icon(Icons.logout, color: secondryColor),
+              onPressed: () {
+                cubit.userSignout(context: context);
+              },
+            ),
             title: const Text(
               'Menu',
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
           floatingActionButton: FloatingActionButton(
-            backgroundColor: Colors.blue,
+            backgroundColor: primaryColor,
             onPressed: () async {
               final result = await navigateTo(context, AddMealScreen());
               if (result == true) {

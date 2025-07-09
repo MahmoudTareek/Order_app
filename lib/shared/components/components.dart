@@ -62,6 +62,10 @@ Widget defaultFormField({
   validator: (value) => validate(value),
   enabled: isClickable,
   decoration: InputDecoration(
+    labelStyle: TextStyle(color: secondryColor),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: primaryColor),
+    ),
     labelText: label,
     prefixIcon: Icon(prefix),
     suffix:
@@ -240,3 +244,7 @@ Future<dynamic> navigateTo(context, widget) =>
 
 int selectedMeal = 0;
 List<String> selectedMealIds = [];
+
+const Color primaryColor = Colors.deepOrange;
+
+const Color secondryColor = Colors.blue;

@@ -27,7 +27,7 @@ class YourMealsScreen extends StatelessWidget {
           return Scaffold(
             body: const Center(
               child: CircularProgressIndicator(
-                color: Colors.blue,
+                color: primaryColor,
                 backgroundColor: Colors.white,
               ),
             ),
@@ -37,6 +37,12 @@ class YourMealsScreen extends StatelessWidget {
         var cubit = OrdersCubit.get(context);
         return Scaffold(
           appBar: AppBar(
+            leading: IconButton(
+              icon: Icon(Icons.logout, color: secondryColor),
+              onPressed: () {
+                cubit.userSignout(context: context);
+              },
+            ),
             title: const Text(
               'Your Meals',
               style: TextStyle(fontWeight: FontWeight.bold),
@@ -45,7 +51,7 @@ class YourMealsScreen extends StatelessWidget {
               Stack(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.shopping_cart, color: Colors.blue),
+                    icon: Icon(Icons.shopping_cart, color: secondryColor),
                     onPressed: () async {
                       navigateTo(
                         context,
@@ -60,7 +66,7 @@ class YourMealsScreen extends StatelessWidget {
                       child: Container(
                         padding: EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.green,
+                          color: primaryColor,
                           shape: BoxShape.circle,
                         ),
                         child: Text(
@@ -142,15 +148,13 @@ class YourMealsScreen extends StatelessWidget {
                               height: 40,
                               width: 40,
                               decoration: BoxDecoration(
-                                color: Colors.green,
+                                color: primaryColor,
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(
                                 icon: Icon(Icons.add, color: Colors.white),
                                 onPressed: () async {
-                                  print(cubit.numOfSelectedMeal);
                                   if (cubit.numOfSelectedMeal! < 3) {
-                                    // print(selectedMealIds);
                                     if (selectedMealIds.contains(
                                       cubit.randomMeals[index].id,
                                     )) {
@@ -188,12 +192,6 @@ class YourMealsScreen extends StatelessWidget {
                                       textColor: Colors.black,
                                       fontSize: 16.0,
                                     );
-                                    // navigateTo(
-                                    //   context,
-                                    //   SelectedMealsScreen(
-                                    //     selectedMealIds: selectedMealIds,
-                                    //   ),
-                                    // );
                                   }
                                   // print(
                                   //   "HHHHEEEEEEEEEEEEERRRRRRRRRRRREEEEEEEEEEE",

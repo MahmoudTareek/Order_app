@@ -33,6 +33,9 @@ class EditMealScreen extends StatelessWidget {
           TextEditingController mealPriceController = TextEditingController(
             text: cubit.meals?.price.toString(),
           );
+          if (state is OrdersUpdateMealLoadingState) {
+            LinearProgressIndicator();
+          }
           return Scaffold(
             appBar: AppBar(
               leading: IconButton(
@@ -73,12 +76,35 @@ class EditMealScreen extends StatelessWidget {
                           },
                           icon: CircleAvatar(
                             radius: 20.0,
-                            backgroundColor: Colors.blue,
+                            backgroundColor: secondryColor,
                             child: Icon(Icons.camera_alt, color: Colors.white),
                           ),
                         ),
                       ],
                     ),
+                    if (cubit.mealImage != null) ...[
+                      const SizedBox(height: 20.0),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            defaultButton(
+                              function: () {
+                                cubit.updateMealImage(
+                                  id: mealId,
+                                  name: mealNameController.text,
+                                  description: mealDescriptionController.text,
+                                  price: mealPriceController.text,
+                                );
+                              },
+                              text: 'Upload Image',
+                              radius: 50.0,
+                            ),
+                            const SizedBox(height: 10.0),
+                          ],
+                        ),
+                      ),
+                    ],
                     const SizedBox(height: 20.0),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
@@ -146,7 +172,12 @@ class EditMealScreen extends StatelessWidget {
                                     description: mealDescriptionController.text,
                                     price: mealPriceController.text,
                                   );
-                                  cubit.updateMealImage();
+                                  // cubit.updateMealImage(
+                                  //   id: mealId,
+                                  //   name: mealNameController.text,
+                                  //   description: mealDescriptionController.text,
+                                  //   price: mealPriceController.text,
+                                  // );
                                   isUpdated = true;
                                 }
                               },
