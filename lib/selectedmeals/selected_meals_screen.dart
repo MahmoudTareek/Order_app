@@ -83,29 +83,36 @@ class _SelectedMealsScreenState extends State<SelectedMealsScreen> {
                                           image: NetworkImage(
                                             '${cubit.selectedUserMeals?[index].imageUrl.toString()}',
                                           ),
+                                          fit: BoxFit.cover,
                                         ),
                                       ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
+                                      SizedBox(width: 8),
+
+                                      Expanded(
                                         child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                               '${cubit.selectedUserMeals?[index].name.toString()}',
                                               style: TextStyle(
-                                                fontSize: 18.0,
+                                                fontSize: 16.0,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
                                             SizedBox(height: 5.0),
                                             Text(
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
                                               '${cubit.selectedUserMeals?[index].description.toString()}',
                                               style: TextStyle(
                                                 color: Colors.grey,
+                                                fontSize: 14.0,
                                               ),
                                             ),
-                                            SizedBox(height: 35.0),
+                                            SizedBox(height: 25.0),
                                             Row(
                                               children: [
                                                 Text(

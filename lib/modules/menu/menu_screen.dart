@@ -62,6 +62,7 @@ class MenuScreen extends StatelessWidget {
                               image: NetworkImage(
                                 '${cubit.mealsList?[index].imageUrl.toString()}',
                               ),
+                              fit: BoxFit.cover,
                             ),
                           ),
                           SizedBox(width: 8),
@@ -88,7 +89,7 @@ class MenuScreen extends StatelessWidget {
                                     fontSize: 14.0,
                                   ),
                                 ),
-                                SizedBox(height: 35.0),
+                                SizedBox(height: 25.0),
                                 Row(
                                   children: [
                                     Text(
