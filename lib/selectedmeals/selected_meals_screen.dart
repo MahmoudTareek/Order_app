@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:order_app/addmeal/addmeal.dart';
@@ -65,7 +66,7 @@ class _SelectedMealsScreenState extends State<SelectedMealsScreen> {
                         child: ListView.separated(
                           physics: BouncingScrollPhysics(),
                           separatorBuilder: (context, index) => myDivider(),
-                          itemCount: widget.selectedMealIds.length,
+                          itemCount: cubit.selectedUserMeals.length,
                           itemBuilder: (context, index) {
                             return Column(
                               children: [
@@ -143,25 +144,36 @@ class _SelectedMealsScreenState extends State<SelectedMealsScreen> {
                                               color: Colors.red,
                                             ),
                                             onPressed: () async {
-                                              if (cubit.selectedMeals.length ==
+                                              if (cubit.numOfSelectedMeal ==
                                                   1) {
                                                 Navigator.pop(context);
                                               }
+                                              cubit.numOfSelectedMeal =
+                                                  --selectedMeal;
+                                              cubit.updateUserOfSelectedMeals(
+                                                uID: cubit.userID,
+                                                number:
+                                                    cubit.numOfSelectedMeal!,
+                                              );
+                                              selectedMealIds.removeWhere(
+                                                (id) =>
+                                                    id ==
+                                                    cubit
+                                                        .selectedUserMeals[index]
+                                                        .id,
+                                              );
+
                                               cubit.removeSelectedMeal(
                                                 cubit
                                                     .selectedUserMeals[index]
                                                     .id,
                                                 cubit.selectedUserMeals,
                                               );
-                                              // final result = await navigateTo(
-                                              //   context,
-                                              //   EditMealScreen(
-                                              //     mealId: cubit.mealsList[index].id,
-                                              //   ),
-                                              // );
-                                              // if (result == true) {
-                                              //   OrdersCubit.get(context).getAllMeals();
-                                              // }
+                                              setState(() {
+                                                OrdersCubit.get(
+                                                  context,
+                                                ).getSelectedUserMeals();
+                                              });
                                             },
                                           ),
                                         ),

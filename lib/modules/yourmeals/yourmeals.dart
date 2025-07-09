@@ -15,7 +15,9 @@ class YourMealsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    List<String> selectedMealIds = [];
+    OrdersCubit.get(
+      context,
+    ).getNumOfUserOfSelectedMeals(uID: OrdersCubit.get(context).userID);
     return BlocConsumer<OrdersCubit, OrdersState>(
       listener: (context, state) {
         print(state);
@@ -32,7 +34,6 @@ class YourMealsScreen extends StatelessWidget {
           );
         }
         int randomsMeal = 5;
-        int selectedMeal = 0;
         var cubit = OrdersCubit.get(context);
         return Scaffold(
           appBar: AppBar(
@@ -41,14 +42,38 @@ class YourMealsScreen extends StatelessWidget {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             actions: [
-              IconButton(
-                icon: Icon(Icons.shopping_cart, color: Colors.blue),
-                onPressed: () async {
-                  navigateTo(
-                    context,
-                    SelectedMealsScreen(selectedMealIds: selectedMealIds),
-                  );
-                },
+              Stack(
+                children: [
+                  IconButton(
+                    icon: Icon(Icons.shopping_cart, color: Colors.blue),
+                    onPressed: () async {
+                      navigateTo(
+                        context,
+                        SelectedMealsScreen(selectedMealIds: selectedMealIds),
+                      );
+                    },
+                  ),
+                  if (selectedMealIds.isNotEmpty)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.green,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${selectedMealIds.length}',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ],
           ),
@@ -123,7 +148,8 @@ class YourMealsScreen extends StatelessWidget {
                               child: IconButton(
                                 icon: Icon(Icons.add, color: Colors.white),
                                 onPressed: () async {
-                                  if (selectedMealIds.length < 3) {
+                                  print(cubit.numOfSelectedMeal);
+                                  if (cubit.numOfSelectedMeal! < 3) {
                                     // print(selectedMealIds);
                                     if (selectedMealIds.contains(
                                       cubit.randomMeals[index].id,
@@ -139,14 +165,17 @@ class YourMealsScreen extends StatelessWidget {
                                       );
                                       return;
                                     } else {
+                                      cubit.numOfSelectedMeal = ++selectedMeal;
+                                      cubit.updateUserOfSelectedMeals(
+                                        uID: cubit.userID,
+                                        number: cubit.numOfSelectedMeal!,
+                                      );
                                       selectedMealIds.add(
                                         cubit.randomMeals[index].id,
                                       );
                                       cubit.addSelectedMeal(
                                         cubit.randomMeals[index].id,
                                       );
-                                      selectedMeal++;
-                                      print(selectedMealIds);
                                     }
                                   } else if (selectedMealIds.length == 3) {
                                     Fluttertoast.showToast(

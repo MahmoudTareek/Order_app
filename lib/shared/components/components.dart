@@ -2,13 +2,16 @@
 // import 'package:order_meal/shared/cubit/cubit.dart';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
+import 'package:order_app/cubit/cubit.dart';
 
 Widget defaultButton({
+  required VoidCallback function,
+  bool isDisabled = false,
   double width = double.infinity,
   Color background = Colors.blue,
   bool isUpperCase = true,
   double radius = 0.0,
-  required Function() function,
+  // required Function() function,
   required String text,
 }) => Container(
   width: width,
@@ -26,6 +29,7 @@ Widget defaultButton({
 );
 
 Widget defaultFormField({
+  required BuildContext context,
   required TextEditingController controller,
   required TextInputType type,
   bool isPassword = false,
@@ -64,6 +68,8 @@ Widget defaultFormField({
         suffix != null
             ? IconButton(
               onPressed: () {
+                OrdersCubit.get(context).changePasswordVisibility();
+                isPassword = !isPassword;
                 suffixPrssed!();
               },
               icon: Icon(suffix),
@@ -231,3 +237,6 @@ Widget myDivider() => Padding(
 
 Future<dynamic> navigateTo(context, widget) =>
     Navigator.push(context, MaterialPageRoute(builder: (context) => widget));
+
+int selectedMeal = 0;
+List<String> selectedMealIds = [];

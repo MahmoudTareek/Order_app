@@ -73,6 +73,7 @@ class AddMealScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: defaultFormField(
+                        context: context,
                         controller: mealIdController,
                         type: TextInputType.number,
                         validate: (String? value) {
@@ -89,6 +90,7 @@ class AddMealScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: defaultFormField(
+                        context: context,
                         controller: mealNameController,
                         type: TextInputType.text,
                         validate: (String? value) {
@@ -105,6 +107,7 @@ class AddMealScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: defaultFormField(
+                        context: context,
                         controller: mealDescriptionController,
                         type: TextInputType.text,
                         validate: (String? value) {
@@ -121,6 +124,7 @@ class AddMealScreen extends StatelessWidget {
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: defaultFormField(
+                        context: context,
                         controller: mealPriceController,
                         type: TextInputType.number,
                         validate: (String? value) {

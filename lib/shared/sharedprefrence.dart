@@ -1,21 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:order_app/shared/components/components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Widget defaultButton({
-  required VoidCallback function,
-  required String text,
-  double radius = 0.0,
-  bool isDisabled = false,
-}) => ElevatedButton(
-  onPressed: isDisabled ? null : function,
-  style: ElevatedButton.styleFrom(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(radius)),
-  ),
-  child: Text(text),
-);
-
-// StatefulWidget يطبق قفل 24 ساعة على الزر
 class LockableDefaultButton extends StatefulWidget {
   final String text;
   final double radius;
@@ -73,7 +60,7 @@ class _LockableDefaultButtonState extends State<LockableDefaultButton> {
       if (isLocked && lastPressedTime != null) {
         final now = DateTime.now();
         final diff = now.difference(lastPressedTime!);
-        if (diff.inHours >= 24) {
+        if (diff.inSeconds >= 5) {
           setState(() {
             isLocked = false;
             lastPressedTime = null;
@@ -99,9 +86,31 @@ class _LockableDefaultButtonState extends State<LockableDefaultButton> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLocked) {
+      return SizedBox(
+        width: double.infinity,
+        child: ButtonTheme(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(widget.radius),
+          ),
+          child: ElevatedButton(
+            onPressed: null,
+            style: ElevatedButton.styleFrom(
+              disabledBackgroundColor: Colors.red,
+              padding: EdgeInsets.symmetric(vertical: 14.0),
+            ),
+            child: Text(
+              'You have only one order per day!',
+              style: TextStyle(color: Colors.white, fontSize: 16.0),
+            ),
+          ),
+        ),
+      );
+    }
     return defaultButton(
+      background: Colors.blue,
       function: isLocked ? () {} : _handlePress,
-      text: isLocked ? 'You have only one order per day! ' : widget.text,
+      text: widget.text,
       radius: widget.radius,
       isDisabled: false,
     );

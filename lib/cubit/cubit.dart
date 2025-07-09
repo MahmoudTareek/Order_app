@@ -2,6 +2,8 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,7 +13,6 @@ import 'package:order_app/models/meals_model.dart';
 import 'package:order_app/modules/home/home_screen.dart';
 import 'package:order_app/modules/menu/menu_screen.dart';
 import 'package:order_app/modules/yourmeals/yourmeals.dart';
-import 'package:order_app/modules/settings/settings_screen.dart';
 import 'package:order_app/shared/components/components.dart';
 
 class OrdersCubit extends Cubit<OrdersState> {
@@ -24,20 +25,17 @@ class OrdersCubit extends Cubit<OrdersState> {
   List<BottomNavigationBarItem> bottomItems = [
     BottomNavigationBarItem(icon: Icon(Icons.fastfood), label: 'Menu'),
     BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Your Meals'),
-    BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
   ];
 
-  List<Widget> screens = [MenuScreen(), YourMealsScreen(), SettingsScreen()];
-
-  // List<String> titles = ['Menu', 'Your Meals', 'Settings'];
+  List<Widget> screens = [MenuScreen(), YourMealsScreen()];
 
   void changeBottomNavBar(int index) {
     currentIndex = index;
+    if (index == 0) {
+      MenuScreen();
+    }
     if (index == 1) {
       YourMealsScreen();
-    }
-    if (index == 2) {
-      SettingsScreen();
     }
     emit(OrdersChangeBottomNavBarState());
   }
@@ -47,13 +45,77 @@ class OrdersCubit extends Cubit<OrdersState> {
     emit(OrdersChangeBottomNavBarState());
   }
 
-  void checkMailAndPassword(String email, String password) {
-    if (email.isNotEmpty && password.isNotEmpty) {
-      emit(OrdersSuccessLoginState());
-    } else {
-      emit(OrdersSuccessLoginState());
-      //  navigateTo(context, HomeScreen());
-    }
+  IconData suffixIcon = Icons.visibility_outlined;
+  bool isPassword = true;
+
+  void changePasswordVisibility() {
+    isPassword = !isPassword;
+    suffixIcon =
+        isPassword ? Icons.visibility_outlined : Icons.visibility_off_outlined;
+    emit(OrdersChangePasswordVisibilityState());
+  }
+
+  String? userID;
+
+  void userLogin({
+    required String email,
+    required String password,
+    required BuildContext context,
+  }) {
+    emit(OrdersLoadingLoginState());
+    FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: password)
+        .then((value) {
+          emit(OrdersSuccessLoginState());
+
+          userID = value.user!.uid;
+          getUserRole(uID: value.user!.uid, context: context);
+        })
+        .catchError((error) {
+          emit(OrdersErrorLoginState(error.toString()));
+          Fluttertoast.showToast(
+            msg: "Login Failed, Try Again",
+            toastLength: Toast.LENGTH_SHORT,
+            gravity: ToastGravity.BOTTOM,
+            timeInSecForIosWeb: 1,
+            backgroundColor: Colors.red,
+            textColor: Colors.white,
+            fontSize: 16.0,
+          );
+        });
+  }
+
+  void getUserRole({required uID, required BuildContext context}) {
+    emit(OrdersGetUserRoleLoadingState());
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uID)
+        .get()
+        .then((value) {
+          if (value.exists) {
+            String role = value.data()!['role'];
+            print(role);
+            emit(OrdersGetUserRoleSuccessState());
+            if (role == 'admin') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+              );
+            } else if (role == 'user') {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => YourMealsScreen()),
+              );
+            } else {
+              emit(OrdersGetUserRoleErrorState('Invalid user role'));
+            }
+          } else {
+            emit(OrdersGetUserRoleErrorState('User not found'));
+          }
+        })
+        .catchError((error) {
+          emit(OrdersGetUserRoleErrorState(error.toString()));
+        });
   }
 
   MealsModel? meals;
@@ -149,8 +211,7 @@ class OrdersCubit extends Cubit<OrdersState> {
       name: name,
       description: description,
       price: price,
-      imageUrl:
-          'https://takrecipe.com/wp-content/uploads/2022/10/beef-steak-recipe.jpg',
+      imageUrl: meals!.imageUrl, // Keep the existing image URL
     );
     FirebaseFirestore.instance
         .collection('meals')
@@ -182,6 +243,53 @@ class OrdersCubit extends Cubit<OrdersState> {
         });
   }
 
+  File? mealImage;
+  var picker = ImagePicker();
+
+  Future<void> getMealImage() async {
+    emit(OrdersgetMealImageLoadingState());
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      mealImage = File(pickedFile.path);
+      emit(OrdersgetMealImageSuccessState());
+    } else {
+      emit(OrdersgetMealImageErrorState('No image selected.'));
+    }
+  }
+
+  void updateMealImage() async {
+    emit(OrdersUpdateMealImageLoadingState());
+    await firebase_storage.FirebaseStorage.instance
+        .ref()
+        .child('meals/${Uri.file(mealImage!.path).pathSegments.last}')
+        .putFile(mealImage!)
+        .then((value) {
+          value.ref.getDownloadURL().then((downloadUrl) {
+            meals!.imageUrl = downloadUrl;
+            FirebaseFirestore.instance
+                .collection('meals')
+                .doc(meals!.id)
+                .update(meals!.toJson())
+                .then((value) {
+                  emit(OrdersUpdateMealImageSuccessState());
+                  Fluttertoast.showToast(
+                    msg: "Meal Image Updated Successfully!",
+                    toastLength: Toast.LENGTH_SHORT,
+                    gravity: ToastGravity.BOTTOM,
+                    timeInSecForIosWeb: 1,
+                    backgroundColor: Colors.green,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                })
+                .catchError((error) {
+                  emit(OrdersUpdateMealImageErrorState(error.toString()));
+                });
+          });
+        })
+        .catchError((error) {});
+  }
+
   void deleteMeal(id) {
     FirebaseFirestore.instance
         .collection('meals')
@@ -193,19 +301,6 @@ class OrdersCubit extends Cubit<OrdersState> {
         .catchError((error) {
           emit(OrdersDeleteMealErrorState(error));
         });
-  }
-
-  File? mealImage;
-  var picker = ImagePicker();
-  Future<void> getMealImage() async {
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      mealImage = File(pickedFile.path);
-      emit(OrdersMealPcikedSuccessState());
-    } else {
-      print('No image selected.');
-      emit(OrdersMealPcikedSuccessState());
-    }
   }
 
   List<MealsModel> randomMeals = [];
@@ -237,23 +332,30 @@ class OrdersCubit extends Cubit<OrdersState> {
 
   List<MealsModel> selectedMeals = [];
 
-  void getSelectedData(List ids) {
+  void getSelectedData(List ids) async {
     emit(OrdersSelectedMealLoadingState());
-    for (int i = 0; i < ids.length; i++) {
-      FirebaseFirestore.instance
-          .collection('meals')
-          .doc(ids[i])
-          .get()
-          .then((value) {
-            meals = MealsModel.fromJson(value.data()!);
-            selectedMeals.add(meals!);
-            emit(OrdersSelectedMealSelectededSuccessState());
-          })
-          .catchError((error) {
-            debugPrint(error.toString());
+    selectedMeals.clear();
+    try {
+      List<Future> futures = [];
 
-            emit(OrderSelectedMealSelectededErrorState(error.toString()));
-          });
+      for (var id in ids) {
+        futures.add(
+          FirebaseFirestore.instance.collection('meals').doc(id).get(),
+        );
+      }
+
+      List responses = await Future.wait(futures);
+
+      for (var doc in responses) {
+        if (doc.exists) {
+          selectedMeals.add(MealsModel.fromJson(doc.data()!));
+        }
+      }
+
+      emit(OrdersSelectedMealSelectededSuccessState());
+    } catch (error) {
+      debugPrint(error.toString());
+      emit(OrderSelectedMealSelectededErrorState(error.toString()));
     }
   }
 
@@ -261,10 +363,42 @@ class OrdersCubit extends Cubit<OrdersState> {
     emit(OrdersSelectedMealToUserLoadingState());
     FirebaseFirestore.instance
         .collection('users')
-        .doc('2')
+        .doc(userID)
         .update({
           'selectedMealIds': FieldValue.arrayUnion([selectedMealId]),
         })
+        .then((value) {
+          emit(OrdersSelectedMealToUserSuccessState());
+        })
+        .catchError((error) {
+          emit(OrderMealSelectedToUseredErrorState(error.toString()));
+        });
+  }
+
+  int? numOfSelectedMeal;
+
+  void getNumOfUserOfSelectedMeals({required uID}) {
+    emit(OrdersSelectedMealToUserLoadingState());
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uID)
+        .get()
+        .then((value) {
+          numOfSelectedMeal = value.data()!['numOfSelectedMeals'];
+          emit(OrdersSelectedMealToUserSuccessState());
+        })
+        .catchError((error) {
+          emit(OrderMealSelectedToUseredErrorState(error.toString()));
+        });
+  }
+
+  void updateUserOfSelectedMeals({required uID, required number}) {
+    numOfSelectedMeal = number;
+    emit(OrdersSelectedMealToUserLoadingState());
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(uID)
+        .update({'numOfSelectedMeals': number})
         .then((value) {
           emit(OrdersSelectedMealToUserSuccessState());
         })
@@ -277,12 +411,10 @@ class OrdersCubit extends Cubit<OrdersState> {
 
   void removeSelectedMeal(String id, List selectedUserMeals) {
     emit(OrdersRemoveSelectedMealLoadingState());
-    print(id);
-    selectedUserMeals.remove(id);
-    print(selectedUserMeals);
+    selectedMeals.removeWhere((meal) => meal.id == id);
     FirebaseFirestore.instance
         .collection('users')
-        .doc('2')
+        .doc(userID)
         .update({
           'selectedMealIds': FieldValue.arrayRemove([id]),
         })
@@ -297,7 +429,7 @@ class OrdersCubit extends Cubit<OrdersState> {
   void getSelectedUserMeals() async {
     selectedUserMeals.clear();
     emit(OrdersSelectedMealLoadingState());
-    FirebaseFirestore.instance.collection('users').doc('2').get().then((
+    FirebaseFirestore.instance.collection('users').doc(userID).get().then((
       DocumentSnapshot doc,
     ) {
       List<dynamic> mealIds = doc['selectedMealIds'];

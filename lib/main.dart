@@ -26,15 +26,18 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<OrdersCubit>(
-          create: (context) => OrdersCubit()..getAllMeals(),
-        ),
-        BlocProvider<OrdersCubit>(
-          create: (context) => OrdersCubit()..getRandomMeal(),
+          create:
+              (context) =>
+                  OrdersCubit()
+                    ..getAllMeals()
+                    ..getRandomMeal()
+                    ..getSelectedUserMeals()
+                    ..getNumOfUserOfSelectedMeals(uID: OrdersCubit().userID),
         ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: YourMealsScreen(),
+        home: LoginScreen(),
       ),
     );
   }

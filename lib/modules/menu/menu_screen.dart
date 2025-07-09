@@ -17,6 +17,7 @@ class MenuScreen extends StatelessWidget {
       },
       builder: (context, state) {
         var cubit = OrdersCubit.get(context);
+        // OrdersCubit.get(context).getAllMeals();
         return Scaffold(
           appBar: AppBar(
             title: const Text(

@@ -6,12 +6,36 @@ class OrdersLoadingState extends OrdersState {}
 
 class OrdersChangeBottomNavBarState extends OrdersState {}
 
+class OrdersChangePasswordVisibilityState extends OrdersState {}
+
 class OrdersSuccessLoginState extends OrdersState {}
+
+class OrdersLoadingLoginState extends OrdersState {}
 
 class OrdersErrorLoginState extends OrdersState {
   final String error;
 
   OrdersErrorLoginState(this.error);
+}
+
+class OrdersUpdatenumOfSelectedMealsSucessState extends OrdersState {}
+
+class OrdersUpdatenumOfSelectedMealsLoadingState extends OrdersState {}
+
+class OrdersUpdatenumOfSelectedMealsErrorState extends OrdersState {
+  final String error;
+
+  OrdersUpdatenumOfSelectedMealsErrorState(this.error);
+}
+
+class OrdersGetUserRoleLoadingState extends OrdersState {}
+
+class OrdersGetUserRoleSuccessState extends OrdersState {}
+
+class OrdersGetUserRoleErrorState extends OrdersState {
+  final String error;
+
+  OrdersGetUserRoleErrorState(this.error);
 }
 
 class OrdersGetAllMealsSuccessState extends OrdersState {}
@@ -94,4 +118,24 @@ class OrderMealSelectedToUseredErrorState extends OrdersState {
   final String error;
 
   OrderMealSelectedToUseredErrorState(this.error);
+}
+
+class OrdersUpdateMealImageSuccessState extends OrdersState {}
+
+class OrdersUpdateMealImageLoadingState extends OrdersState {}
+
+class OrdersUpdateMealImageErrorState extends OrdersState {
+  final String error;
+
+  OrdersUpdateMealImageErrorState(this.error);
+}
+
+class OrdersgetMealImageSuccessState extends OrdersState {}
+
+class OrdersgetMealImageLoadingState extends OrdersState {}
+
+class OrdersgetMealImageErrorState extends OrdersState {
+  final String error;
+
+  OrdersgetMealImageErrorState(this.error);
 }
