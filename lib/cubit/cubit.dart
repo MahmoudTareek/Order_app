@@ -71,7 +71,7 @@ class OrdersCubit extends Cubit<OrdersState> {
           emit(OrdersSuccessLoginState());
 
           userID = value.user!.uid;
-          print('User ID: $userID');
+          // print('User ID: $userID');
           getUserRole(uID: value.user!.uid, context: context);
         })
         .catchError((error) {
@@ -114,7 +114,7 @@ class OrdersCubit extends Cubit<OrdersState> {
         .then((value) {
           if (value.exists) {
             String role = value.data()!['role'];
-            print(role);
+            // print(role);
             emit(OrdersGetUserRoleSuccessState());
             if (role == 'admin') {
               Navigator.pushReplacement(
@@ -183,8 +183,7 @@ class OrdersCubit extends Cubit<OrdersState> {
     required price,
     required File? imageFile,
   }) async {
-    String imageURL =
-        'https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ=';
+    String imageURL = '';
     if (imageFile != null) {
       emit(OrdersUpdateMealImageLoadingState());
       try {
@@ -215,7 +214,7 @@ class OrdersCubit extends Cubit<OrdersState> {
       imageUrl:
           imageURL.isNotEmpty
               ? imageURL
-              : 'https://via.placeholder.com/150.png?text=Meal+Image',
+              : 'https://media.istockphoto.com/id/1409329028/vector/no-picture-available-placeholder-thumbnail-icon-illustration-design.jpg?s=612x612&w=0&k=20&c=_zOuJu755g2eEUioiOUdz_mHKJQJn-tDgIAhQzyeKUQ=',
     );
     FirebaseFirestore.instance
         .collection('meals')
