@@ -22,6 +22,7 @@ class HomeScreen extends StatelessWidget {
             onTap: (index) {
               cubit.changeBottomNavBar(index);
             },
+            selectedItemColor: primaryColor,
             items: cubit.bottomItems,
           ),
         );

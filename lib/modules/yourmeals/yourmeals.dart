@@ -131,7 +131,7 @@ class YourMealsScreen extends StatelessWidget {
                                     fontSize: 14.0,
                                   ),
                                 ),
-                                SizedBox(height: 25.0),
+                                // SizedBox(height: 25.0),
                                 Row(
                                   children: [
                                     Text(
@@ -203,18 +203,8 @@ class YourMealsScreen extends StatelessWidget {
                                     );
                                   }
                                   // print(
-                                  //   "HHHHEEEEEEEEEEEEERRRRRRRRRRRREEEEEEEEEEE",
+                                  //   "I"M HHHHEEEEEEEEEEEEERRRRRRRRRRRREEEEEEEEEEE",
                                   // );
-                                  // print(cubit.randomMeals[index].id);
-                                  // final result = await navigateTo(
-                                  //   context,
-                                  //   SelectedMealsScreen(
-                                  //     mealId: cubit.randomMeals[index].id,
-                                  //   ),
-                                  // );
-                                  // if (result == true) {
-                                  //   OrdersCubit.get(context).getAllMeals();
-                                  // }
                                 },
                               ),
                             ),

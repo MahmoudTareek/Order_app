@@ -89,7 +89,7 @@ class MenuScreen extends StatelessWidget {
                                     fontSize: 14.0,
                                   ),
                                 ),
-                                SizedBox(height: 25.0),
+                                // SizedBox(height: 25.0),
                                 Row(
                                   children: [
                                     Text(
