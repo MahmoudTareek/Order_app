@@ -1,4 +1,6 @@
+import 'dart:math';
 import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:order_app/shared/components/components.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,22 +24,22 @@ class LockableDefaultButton extends StatefulWidget {
 class _LockableDefaultButtonState extends State<LockableDefaultButton> {
   bool isLocked = false;
   DateTime? lastPressedTime;
-  Timer? _timer;
+  Timer? timer;
 
   @override
   void initState() {
     super.initState();
-    _loadLockState();
-    _startTimer();
+    loadLockState();
+    startTimer();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    timer?.cancel();
     super.dispose();
   }
 
-  Future<void> _loadLockState() async {
+  Future<void> loadLockState() async {
     final prefs = await SharedPreferences.getInstance();
     final lastPressedTimestamp = prefs.getInt('lockableButtonLastPressed');
 
@@ -55,8 +57,8 @@ class _LockableDefaultButtonState extends State<LockableDefaultButton> {
     }
   }
 
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+  void startTimer() {
+    timer = Timer.periodic(Duration(seconds: 1), (_) {
       if (isLocked && lastPressedTime != null) {
         final now = DateTime.now();
         final diff = now.difference(lastPressedTime!);
@@ -70,7 +72,7 @@ class _LockableDefaultButtonState extends State<LockableDefaultButton> {
     });
   }
 
-  Future<void> _handlePress() async {
+  Future<void> handlePress() async {
     final prefs = await SharedPreferences.getInstance();
     final now = DateTime.now();
     await prefs.setInt('lockableButtonLastPressed', now.millisecondsSinceEpoch);
@@ -108,8 +110,8 @@ class _LockableDefaultButtonState extends State<LockableDefaultButton> {
       );
     }
     return defaultButton(
-      background: Colors.blue,
-      function: isLocked ? () {} : _handlePress,
+      background: secondryColor,
+      function: isLocked ? () {} : handlePress,
       text: widget.text,
       radius: widget.radius,
       isDisabled: false,

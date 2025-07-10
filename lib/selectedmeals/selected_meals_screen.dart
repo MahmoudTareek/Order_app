@@ -73,6 +73,7 @@ class _SelectedMealsScreenState extends State<SelectedMealsScreen> {
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
                                   child: Row(
+                                    mainAxisSize: MainAxisSize.max,
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [

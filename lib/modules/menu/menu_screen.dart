@@ -53,6 +53,7 @@ class MenuScreen extends StatelessWidget {
                     return Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Row(
+                        mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Container(
@@ -115,7 +116,7 @@ class MenuScreen extends StatelessWidget {
                               height: 40,
                               width: 40,
                               decoration: BoxDecoration(
-                                color: Colors.grey[400],
+                                color: primaryColor,
                                 shape: BoxShape.circle,
                               ),
                               child: IconButton(

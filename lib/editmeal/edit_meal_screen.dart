@@ -189,7 +189,7 @@ class EditMealScreen extends StatelessWidget {
                           Expanded(
                             child: defaultButton(
                               function: () {
-                                showFancyDeleteDialog(
+                                showDeleteDialog(
                                   context: context,
                                   onConfirm: () {
                                     cubit.deleteMeal(mealId);
@@ -215,7 +215,7 @@ class EditMealScreen extends StatelessWidget {
     );
   }
 
-  Future<void> showFancyDeleteDialog({
+  Future<void> showDeleteDialog({
     required BuildContext context,
     required VoidCallback onConfirm,
   }) async {
