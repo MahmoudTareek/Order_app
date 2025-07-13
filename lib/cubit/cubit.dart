@@ -379,32 +379,32 @@ class OrdersCubit extends Cubit<OrdersState> {
 
   List<MealsModel> selectedMeals = [];
 
-  void getSelectedData(List ids) async {
-    emit(OrdersSelectedMealLoadingState());
-    selectedMeals.clear();
-    try {
-      List<Future> futures = [];
+  // void getSelectedData(List ids) async {
+  //   emit(OrdersSelectedMealLoadingState());
+  //   selectedMeals.clear();
+  //   try {
+  //     List<Future> futures = [];
 
-      for (var id in ids) {
-        futures.add(
-          FirebaseFirestore.instance.collection('meals').doc(id).get(),
-        );
-      }
+  //     for (var id in ids) {
+  //       futures.add(
+  //         FirebaseFirestore.instance.collection('meals').doc(id).get(),
+  //       );
+  //     }
 
-      List responses = await Future.wait(futures);
+  //     List responses = await Future.wait(futures);
 
-      for (var doc in responses) {
-        if (doc.exists) {
-          selectedMeals.add(MealsModel.fromJson(doc.data()!));
-        }
-      }
+  //     for (var doc in responses) {
+  //       if (doc.exists) {
+  //         selectedMeals.add(MealsModel.fromJson(doc.data()!));
+  //       }
+  //     }
 
-      emit(OrdersSelectedMealSelectededSuccessState());
-    } catch (error) {
-      debugPrint(error.toString());
-      emit(OrderSelectedMealSelectededErrorState(error.toString()));
-    }
-  }
+  //     emit(OrdersSelectedMealSelectededSuccessState());
+  //   } catch (error) {
+  //     debugPrint(error.toString());
+  //     emit(OrderSelectedMealSelectededErrorState(error.toString()));
+  //   }
+  // }
 
   void addSelectedMeal(selectedMealId) {
     emit(OrdersSelectedMealToUserLoadingState());

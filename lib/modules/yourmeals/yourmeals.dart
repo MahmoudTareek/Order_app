@@ -7,7 +7,7 @@ import 'package:order_app/addmeal/addmeal.dart';
 import 'package:order_app/cubit/cubit.dart';
 import 'package:order_app/cubit/states.dart';
 import 'package:order_app/editmeal/edit_meal_screen.dart';
-import 'package:order_app/selectedmeals/selected_meals_screen.dart';
+import 'package:order_app/modules/selectedmeals/selected_meals_screen.dart';
 import 'package:order_app/shared/components/components.dart';
 
 class YourMealsScreen extends StatelessWidget {

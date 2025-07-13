@@ -49,7 +49,7 @@ class _LockableDefaultButtonState extends State<LockableDefaultButton> {
       );
       final now = DateTime.now();
       final diff = now.difference(lastPressedTime!);
-      if (diff.inSeconds < 5) {
+      if (diff.inHours < 5) {
         setState(() {
           isLocked = true;
         });
